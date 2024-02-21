@@ -10,7 +10,7 @@ Function Write-Section {
 }
 
 # Run command and capture output to file
-Function Capture-Output {
+Function Invoke-OutputCapture {
     Param ([string]$description, [scriptblock]$command)
     Add-Content -Path $filename -Value "# $description `n"
     & $command | Out-String | Add-Content -Path $filename
@@ -20,24 +20,24 @@ Function Capture-Output {
 "System Baseline captured on $dateStamp $spacer" | Out-File -FilePath $filename
 
 # System Information
-Capture-Output "Operating System Information" { Get-WmiObject -Class Win32_OperatingSystem | Format-List * }
-Capture-Output "CPU Information" { Get-WmiObject -Class Win32_Processor | Format-List * }
-Capture-Output "Network Interface Configuration" { Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true } | Format-List * }
-Capture-Output "Disk Usage" { Get-PSDrive -PSProvider FileSystem }
-Capture-Output "Environment Variables" { Get-ChildItem Env: }
+Invoke-OutputCapture "Operating System Information" { Get-WmiObject -Class Win32_OperatingSystem | Format-List * }
+Invoke-OutputCapture "CPU Information" { Get-WmiObject -Class Win32_Processor | Format-List * }
+Invoke-OutputCapture "Network Interface Configuration" { Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true } | Format-List * }
+Invoke-OutputCapture "Disk Usage" { Get-PSDrive -PSProvider FileSystem }
+Invoke-OutputCapture "Environment Variables" { Get-ChildItem Env: }
 
 # User Accounts
 Write-Section "User Accounts Information"
 Get-WmiObject -Class Win32_UserAccount | Format-List * | Out-File -Append -FilePath $filename
 
 # Installed Applications
-Capture-Output "Installed Applications" { Get-WmiObject -Class Win32_Product | Select-Object Name, Version }
+Invoke-OutputCapture "Installed Applications" { Get-WmiObject -Class Win32_Product | Select-Object Name, Version }
 
 # Running Services
-Capture-Output "Running Services" { Get-Service | Where-Object { $_.Status -eq 'Running' } }
+Invoke-OutputCapture "Running Services" { Get-Service | Where-Object { $_.Status -eq 'Running' } }
 
 # Firewall Rules
-Capture-Output "Firewall Rules" { Get-NetFirewallRule | Format-Table -AutoSize }
+Invoke-OutputCapture "Firewall Rules" { Get-NetFirewallRule | Format-Table -AutoSize }
 
 # Scheduled Tasks
 Write-Section "Scheduled Tasks"
