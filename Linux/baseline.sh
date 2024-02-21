@@ -30,11 +30,11 @@ if [ -f "$HOME/.bashrc" ]; then
 fi
 
 # Prepare baseline file
-echo -e "# System Baseline captured on $date_stamp $spacer" >"$filename"
+echo -e "# System Baseline captured on $date_stamp $spacer" >>"$filename"
 
 # User and Password lists
-awk -F':' 'sh$/ {print $1,$7}' /etc/passwd >~/userlist_1.txt
-sudo awk -F':' '{print $1,$2}' /etc/shadow >~/passwordlist_1.txt
+awk -F':' 'sh$/ {print $1,$7}' /etc/passwd >>~/userlist_1.txt
+sudo awk -F':' '{print $1,$2}' /etc/shadow | sudo tee -a ~/passwordlist_1.txt >/dev/null
 
 # System Information
 capture_output "LSB Release Information" "lsb_release --all"
@@ -49,10 +49,10 @@ capture_output "Defined Aliases" "alias"
 
 # Cron Information
 write_section "System Cron Information"
-sudo find /etc/cron* -type f -exec cat {} + >>"$filename" 2>/dev/null
+sudo find /etc/cron* -type f -exec cat {} + | sudo tee -a "$filename" >/dev/null
 
 write_section "User Cron Information"
-sudo find /var/spool/cron/crontabs -type f -exec cat {} + >>"$filename" 2>/dev/null
+sudo find /var/spool/cron/crontabs -type f -exec cat {} + | sudo tee -a "$filename" >/dev/null
 
 # Firewall Information
 capture_output "IPTables Rules" "iptables --list-rules"
